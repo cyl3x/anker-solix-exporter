@@ -8,7 +8,6 @@ docker run -d -p 8080:8080 \
     --name anker-solix-exporter \
     -e ANKER_SOLIX_USERNAME=<username> \
     -e ANKER_SOLIX_PASSWORD=<password> \
-    -e ANKER_SOLIX_SCENE_ID=<scene-id> \
     -v /tmp/anker-solix-exporter:/app \
     ghcr.io/cyl3x/anker-solix-exporter:latest
 ```
@@ -23,7 +22,6 @@ services:
     environment:
       ANKER_SOLIX_USERNAME: <username>
       ANKER_SOLIX_PASSWORD: <password>
-      ANKER_SOLIX_SCENE_ID: <scene-id>
     volumes:
       - /tmp/anker-solix-exporter:/app # for persistent token cache
 ```
