@@ -63,6 +63,7 @@ impl App {
 
         match self.solix.get_scen_info(creds, self.config.scene_id()) {
             Ok(data) => {
+                log::info!("Metrics updated successfully");
                 self.metrics.update(data);
                 true
             }
