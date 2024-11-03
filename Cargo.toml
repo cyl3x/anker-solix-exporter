@@ -2,6 +2,11 @@
 name = "anker-solix-exporter"
 version = "0.1.0"
 edition = "2021"
+license-file = "LICENSE"
+authors = ["cyl3x <cyl3x@posteo.de>"]
+repository = "https://github.com/cyl3x/shopware-devenv"
+description = "Prometheus exporter for Anker Solix E1600"
+readme = "README.md"
 
 [profile.release]
 codegen-units = 1
