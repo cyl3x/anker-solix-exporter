@@ -45,7 +45,7 @@ dependencies = [
 
 [[package]]
 name = "anker-solix-exporter"
-version = "0.1.1"
+version = "1.0.0"
 dependencies = [
  "aes",
  "base64",
