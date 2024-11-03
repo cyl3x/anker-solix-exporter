@@ -6,6 +6,15 @@ on:
       - 'main'
     tags:
       - 'v*'
+    paths:
+      - '**/*.rs'
+      - flake.nix
+      - flake.lock
+      - Cargo.toml
+      - Cargo.lock
+      - Dockerfile
+      - .dockerignore
+      - .github/workflows/docker.yml
 
 jobs:
   build_and_push:

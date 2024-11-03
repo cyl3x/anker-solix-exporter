@@ -5,7 +5,21 @@ on:
   push:
     branches:
       - 'main'
+    paths:
+      - '**/*.rs'
+      - flake.nix
+      - flake.lock
+      - Cargo.toml
+      - Cargo.lock
+      - .github/workflows/ci.yml
   pull_request:
+    paths:
+      - '**/*.rs'
+      - flake.nix
+      - flake.lock
+      - Cargo.toml
+      - Cargo.lock
+      - .github/workflows/ci.yml
 
 jobs:
   check:
