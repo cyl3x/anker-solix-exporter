@@ -4,7 +4,7 @@ use base64::Engine;
 use cipher::{BlockEncryptMut, KeyIvInit};
 use md5::Digest;
 use serde::de::DeserializeOwned;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use super::credentials::Credentials;
 use super::data;
@@ -73,7 +73,7 @@ impl SolixApi {
     pub fn fetch<T>(
         &self,
         endpoint: &str,
-        data: &serde_json::Value,
+        data: Option<impl Serialize>,
         credentials: Option<&Credentials>,
     ) -> Result<Response<T>, Error>
     where
@@ -96,7 +96,12 @@ impl SolixApi {
                 .set("gtoken", &hex::encode(md5::Md5::digest(&user.user_id)))
         }
 
-        match request.send_json(data) {
+        let response = match data {
+            Some(data) => request.send_json(data),
+            None => request.call(),
+        };
+
+        match response {
             Ok(response) => match response.into_json::<Response<T>>() {
                 Ok(data) => Ok(data),
                 Err(err) => Err(Error::Json(err)),
@@ -116,7 +121,7 @@ impl SolixApi {
             "transaction": SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis()
         });
 
-        match self.fetch::<data::Login>("/passport/login", &data, None) {
+        match self.fetch::<data::Login>("/passport/login", Some(&data), None) {
             Ok(Response::Data { data, .. }) => Ok(data),
             Ok(Response::NoData { msg, code, .. }) => Err(Error::Api(code, msg)),
             Err(err) => Err(err),
@@ -132,7 +137,19 @@ impl SolixApi {
 
         match self.fetch::<data::ScenInfo>(
             "/power_service/v1/site/get_scen_info",
-            &data,
+            Some(&data),
+            Some(creds),
+        ) {
+            Ok(Response::Data { data, .. }) => Ok(data),
+            Ok(Response::NoData { msg, code, .. }) => Err(Error::Api(code, msg)),
+            Err(err) => Err(err),
+        }
+    }
+
+    pub fn get_site_homepage(&self, creds: &Credentials) -> Result<data::SiteHomepage, Error> {
+        match self.fetch::<data::SiteHomepage>(
+            "/power_service/v1/site/get_site_homepage",
+            None::<()>,
             Some(creds),
         ) {
             Ok(Response::Data { data, .. }) => Ok(data),

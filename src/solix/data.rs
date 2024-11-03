@@ -54,3 +54,20 @@ pub struct ScenInfo {
     pub solarbank_info: SolarbankInfo,
     pub statistics: Vec<Statistic>,
 }
+
+#[derive(Deserialize, Debug)]
+pub struct SiteHomepage {
+    // pub powerpanel_list: Vec<serde_json::Value>,
+    // pub pps_list: Vec<serde_json::Value>,
+    // pub solar_list: Vec<serde_json::Value>,
+    // pub solarbank_list: Vec<serde_json::Value>,
+    pub site_list: Vec<SiteList>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct SiteList {
+    // ms_type: serde_json::Number,
+    // power_site_type: serde_json::Number,
+    pub site_id: String,
+    pub site_name: String,
+}

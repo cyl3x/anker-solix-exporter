@@ -20,6 +20,7 @@ struct App {
     credentials: Option<Credentials>,
     metrics: Metrics,
     solix: SolixApi,
+    site_ids: Vec<String>,
 }
 
 impl App {
@@ -54,24 +55,24 @@ impl App {
         }
     }
 
-    fn update_metrics(&mut self, retried: bool) -> bool {
+    fn update_metrics(&mut self, site_id: &str, retried: bool) -> bool {
         self.login(false);
 
         let Some(creds) = &self.credentials else {
             return false;
         };
 
-        match self.solix.get_scen_info(creds, self.config.scene_id()) {
+        match self.solix.get_scen_info(creds, site_id) {
             Ok(data) => {
                 log::info!("Metrics updated successfully");
-                self.metrics.update(data);
+                self.metrics.update(site_id, data);
                 true
             }
             Err(solix::Error::InvalidCredentials) => match retried {
                 true => false,
                 false => {
                     self.login(true);
-                    self.update_metrics(true)
+                    self.update_metrics(site_id, true)
                 }
             },
             Err(solix::Error::Api(10000, _)) => {
@@ -85,15 +86,65 @@ impl App {
         }
     }
 
+    fn update_site_ids(&mut self, retried: bool) -> bool {
+        self.login(false);
+
+        let Some(creds) = &self.credentials else {
+            return false;
+        };
+
+        match self.solix.get_site_homepage(creds) {
+            Ok(data) => {
+                self.site_ids = data
+                    .site_list
+                    .into_iter()
+                    .map(|site| {
+                        log::info!("Found site ({}): {}", site.site_id, site.site_name);
+                        site.site_id
+                    })
+                    .collect();
+                true
+            }
+            Err(solix::Error::InvalidCredentials) => match retried {
+                true => false,
+                false => {
+                    self.login(true);
+                    self.update_site_ids(true)
+                }
+            },
+            Err(solix::Error::Api(10000, _)) => {
+                log::error!("Failed to retrieve site ids: Invalid request, check COUNTRY, TIMEZONE, and SCENE_ID");
+                false
+            }
+            Err(err) => {
+                log::error!("Failed to site ids: {err}");
+                false
+            }
+        }
+    }
+
     pub fn address(&self) -> SocketAddr {
         self.config.address()
     }
 
     pub fn get_metrics(&mut self) -> Option<String> {
-        match self.update_metrics(false) {
+        let updated = self
+            .site_ids
+            .clone()
+            .iter()
+            .map(|site_id| self.update_metrics(site_id, false))
+            .any(|updated| updated);
+
+        match updated {
             true => Some(self.metrics.gather()),
             false => None,
         }
+    }
+
+    pub fn get_site_ids(&mut self) -> &[String] {
+        self.update_site_ids(false);
+
+        &self.site_ids
     }
 }
 
@@ -113,9 +164,11 @@ fn main() {
         solix: SolixApi::new(config.country(), config.timezone()),
         credentials: Credentials::load(config.cache_file()),
         config,
+        site_ids: Vec::new(),
     };
 
-    app.get_metrics();
+    // Also ensures that credentials are still valid despite their expiration date
+    app.get_site_ids();
 
     let server = Server::http(app.address()).unwrap();
 

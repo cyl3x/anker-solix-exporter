@@ -17,12 +17,10 @@ pub struct Config {
     username: String,
     #[serde(default)]
     password: String,
-    #[serde(default)]
+    #[serde(default = "default_country")]
     country: String,
-    #[serde(default)]
+    #[serde(default = "default_timezone")]
     timezone: String,
-    #[serde(default)]
-    scene_id: String,
     #[serde(default = "default_cache_file")]
     cache_file: PathBuf,
 }
@@ -33,6 +31,14 @@ fn default_address() -> SocketAddr {
 
 fn default_cache_file() -> PathBuf {
     PathBuf::from("token_cache.json")
+}
+
+fn default_country() -> String {
+    "DE".to_string()
+}
+
+fn default_timezone() -> String {
+    "Europe/Berlin".to_string()
 }
 
 impl Config {
@@ -53,10 +59,6 @@ impl Config {
 
     pub fn timezone(&self) -> &str {
         self.timezone.as_str()
-    }
-
-    pub fn scene_id(&self) -> &str {
-        self.scene_id.as_str()
     }
 
     pub fn username(&self) -> &str {

@@ -12,7 +12,9 @@ type GaugeU32 = Gauge<u32, AtomicU32>;
 type GaugeF64 = Gauge<f64, AtomicU64>;
 
 #[derive(Default, Clone, Debug, Hash, PartialEq, Eq, EncodeLabelSet)]
-pub struct Labels {}
+pub struct Labels {
+    site_id: String,
+}
 
 #[derive(Default)]
 pub struct Metrics {
@@ -100,8 +102,10 @@ impl Metrics {
         buffer
     }
 
-    pub fn update(&self, scene_data: data::ScenInfo) {
-        let labels = Labels::default();
+    pub fn update(&self, site_id: &str, scene_data: data::ScenInfo) {
+        let labels = Labels {
+            site_id: site_id.to_string(),
+        };
 
         self.solarbank_power_percent
             .get_or_create(&labels)
