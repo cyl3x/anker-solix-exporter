@@ -1,6 +1,9 @@
 # Anker Solix E1600 metrics exporter
 This is a simple Prometheus exporter for the Anker Solix E1600 Solarbank.
 
+## Grafana
+You can find a Grafana dashboard for this exporter [here](./grafana_dashboard.json).
+
 ## Usage
 ### Docker CLI
 ```bash
