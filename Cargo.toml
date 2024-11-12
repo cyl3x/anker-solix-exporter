@@ -1,6 +1,6 @@
 [package]
 name = "anker-solix-exporter"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2021"
 license-file = "LICENSE"
 authors = ["cyl3x <cyl3x@posteo.de>"]

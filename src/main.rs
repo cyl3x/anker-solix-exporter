@@ -69,7 +69,10 @@ impl App {
                 true
             }
             Err(solix::Error::InvalidCredentials) => match retried {
-                true => false,
+                true => {
+                    log::warn!("Failed to retrieve scen info: Invalid credentials");
+                    false
+                }
                 false => {
                     self.login(true);
                     self.update_metrics(site_id, true)
@@ -178,7 +181,10 @@ fn main() {
     for request in server.incoming_requests() {
         let result = match app.get_metrics() {
             Some(metrics) => request.respond(Response::from_string(metrics)),
-            None => request.respond(Response::empty(500)),
+            None => {
+                log::warn!("Metrics are not available, responding with 500");
+                request.respond(Response::empty(500))
+            }
         };
 
         if let Err(err) = result {
