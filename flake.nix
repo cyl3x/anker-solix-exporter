@@ -1,56 +1,39 @@
 {
-  description = "anker-solix-exporter";
+  description = "Flake anker-solix-exporter";
 
   inputs = {
     nixpkgs.url = "nixpkgs/nixos-unstable";
-    rust-overlay.url = "github:oxalica/rust-overlay";
-    flake-utils.url = "github:numtide/flake-utils";
-    crane.url = "github:ipetkov/crane";
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    rust-flake.url = "github:juspay/rust-flake";
+    rust-flake.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, rust-overlay, crane, flake-utils }:
-    flake-utils.lib.eachSystem [ "x86_64-linux" "aarch64-linux" ] (system: let
-      pkgs = import nixpkgs {
-        inherit system;
-        overlays = [ (import rust-overlay) ];
-      };
+  outputs = inputs@{ flake-parts, ... }:
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      imports = [
+        inputs.flake-parts.flakeModules.easyOverlay
+        inputs.rust-flake.flakeModules.default
+        inputs.rust-flake.flakeModules.nixpkgs
+      ];
 
-      rustToolchain = pkgs.rust-bin.stable.latest.default.override {
-        extensions = [ "rust-src" ];
-      };
+      systems = [ "aarch64-linux" "x86_64-linux" ];
 
-      craneLib = (crane.mkLib pkgs).overrideToolchain rustToolchain;
-
-      commonArgs = {
-        src = pkgs.lib.cleanSourceWith {
-          src = craneLib.path ./.;
-          filter = craneLib.filterCargoSources;
+      perSystem = { config, self', inputs', pkgs, system, ... }: {
+        rust-project = {
+          crates."anker-solix-exporter".crane.args = {
+            nativeBuildInputs = [ pkgs.pkg-config ];
+            buildInputs = [ pkgs.openssl ];
+          };
         };
 
-        strictDeps = true;
+        overlayAttrs = { inherit (self'.packages) anker-solix-exporter; };
 
-        nativeBuildInputs = [ pkgs.pkg-config ];
-        buildInputs = [ pkgs.openssl ];
+        devShells.default = pkgs.mkShell {
+          inputsFrom = [ self'.devShells.rust ];
+
+          RUST_LOG = "info";
+          RUST_BACKTRACE = "full";
+        };
       };
-
-      cargoArtifacts = craneLib.buildDepsOnly commonArgs;
-      anker-solix-exporter = craneLib.buildPackage (commonArgs // {
-        inherit cargoArtifacts;
-      });
-    in {
-      checks = { inherit anker-solix-exporter; };
-      packages = {
-        inherit anker-solix-exporter;
-        default = anker-solix-exporter;
-      };
-
-      devShells.default = craneLib.devShell {
-        inputsFrom = [ anker-solix-exporter ];
-
-        packages = [ pkgs.rust-analyzer rustToolchain ];
-
-        RUST_SRC_PATH = "${rustToolchain}/lib/rustlib/src/rust/library";
-        RUST_BACKTRACE = 1;
-      };
-    });
+    };
 }
