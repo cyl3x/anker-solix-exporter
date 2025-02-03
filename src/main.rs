@@ -135,8 +135,7 @@ impl App {
             .site_ids
             .clone()
             .iter()
-            .map(|site_id| self.update_metrics(site_id, false))
-            .any(|updated| updated);
+            .any(|site_id| self.update_metrics(site_id, false));
 
         match updated {
             true => Some(self.metrics.gather()),

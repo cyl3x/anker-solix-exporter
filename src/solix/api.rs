@@ -26,6 +26,7 @@ pub enum Error {
 #[derive(Deserialize, Debug)]
 #[serde(untagged)]
 pub enum Response<T> {
+    #[allow(dead_code)]
     Data { code: u32, data: T, msg: String },
     NoData { code: u32, msg: String },
 }
