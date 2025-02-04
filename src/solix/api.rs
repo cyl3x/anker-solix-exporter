@@ -3,6 +3,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use base64::Engine;
 use cipher::{BlockEncryptMut, KeyIvInit};
 use md5::Digest;
+use p256::elliptic_curve::rand_core::OsRng;
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 
@@ -19,8 +20,6 @@ pub enum Error {
     Api(u32, String),
     #[error("Request error: {0}")]
     Request(Box<ureq::Error>),
-    #[error("JSON error: {0}")]
-    Json(std::io::Error),
 }
 
 #[derive(Deserialize, Debug)]
@@ -40,7 +39,7 @@ pub struct SolixApi {
 
 impl SolixApi {
     pub fn new(country: impl Into<String>, timezone: impl Into<String>) -> Self {
-        let ecdh_secret = p256::ecdh::EphemeralSecret::random(&mut rand::thread_rng());
+        let ecdh_secret = p256::ecdh::EphemeralSecret::random(&mut OsRng);
 
         let server_pub_key_bytes =
             hex::decode(SERVER_PUBLIC_KEY).expect("Failed to decode public key");
@@ -81,11 +80,11 @@ impl SolixApi {
         T: DeserializeOwned,
     {
         let mut request = ureq::post(&format!("https://ankerpower-api-eu.anker.com{}", endpoint))
-            .set("Country", &self.country)
-            .set("Timezone", &self.timezone)
-            .set("Model-Type", "DESKTOP")
-            .set("App-Name", "anker_power")
-            .set("Os-Type", "android");
+            .header("Country", &self.country)
+            .header("Timezone", &self.timezone)
+            .header("Model-Type", "DESKTOP")
+            .header("App-Name", "anker_power")
+            .header("Os-Type", "android");
 
         if let Some(user) = credentials {
             if user.expires_in().unwrap() <= 0 {
@@ -93,21 +92,21 @@ impl SolixApi {
             }
 
             request = request
-                .set("X-Auth-Token", &user.auth_token)
-                .set("gtoken", &hex::encode(md5::Md5::digest(&user.user_id)))
+                .header("X-Auth-Token", &user.auth_token)
+                .header("gtoken", &hex::encode(md5::Md5::digest(&user.user_id)))
         }
 
         let response = match data {
             Some(data) => request.send_json(data),
-            None => request.call(),
+            None => request.send_empty(),
         };
 
         match response {
-            Ok(response) => match response.into_json::<Response<T>>() {
+            Ok(response) => match response.into_body().read_json::<Response<T>>() {
                 Ok(data) => Ok(data),
-                Err(err) => Err(Error::Json(err)),
+                Err(err) => Err(Error::Request(Box::new(err))),
             },
-            Err(ureq::Error::Status(401, _)) => Err(Error::InvalidCredentials),
+            Err(ureq::Error::StatusCode(401)) => Err(Error::InvalidCredentials),
             Err(err) => Err(Error::Request(Box::new(err))),
         }
     }
