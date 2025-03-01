@@ -27,9 +27,9 @@ aes = "0.8.4"
 cipher = "0.4.4"
 cbc = "0.1.2"
 hex = "0.4.3"
-log = "0.4.25"
+log = "0.4.26"
 tiny_http = "0.12.0"
-ureq = { version = "3.0.4", features = ["json"] }
+ureq = { version = "3.0.8", features = ["json"] }
 serde_with = "3.12.0"
 thiserror = "2.0.11"
 figment = { version = "0.10.19", features = ["env", "json", "serde_json"] }
