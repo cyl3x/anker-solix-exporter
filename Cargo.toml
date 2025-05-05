@@ -29,7 +29,7 @@ cbc = "0.1.2"
 hex = "0.4.3"
 log = "0.4.27"
 tiny_http = "0.12.0"
-ureq = { version = "3.0.10", features = ["json"] }
+ureq = { version = "3.0.11", features = ["json"] }
 serde_with = "3.12.0"
 thiserror = "2.0.12"
 figment = { version = "0.10.19", features = ["env", "json", "serde_json"] }
