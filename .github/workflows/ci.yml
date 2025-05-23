@@ -32,14 +32,24 @@ jobs:
       - name: Set up QEMU binfmt for cross compiling
         uses: docker/setup-qemu-action@v3
 
-      - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v12
+      - uses: nixbuild/nix-quick-install-action@v30
         with:
-          extra-conf: |
+          nix_conf: |
+            substituters = https://cache.nixos.org/ https://nix-community.cachix.org
+            trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
+            keep-env-derivations = true
+            keep-outputs = true
             extra-platforms = aarch64-linux x86_64-linux
 
-      - name: Cache Nix store
-        uses: DeterminateSystems/magic-nix-cache-action@v8
+      - uses: nix-community/cache-nix-action@v6
+        with:
+          primary-key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          paths: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
 
       - name: Check flake
         run: nix flake check --accept-flake-config
@@ -64,14 +74,24 @@ jobs:
       - name: Set up QEMU binfmt for building aarch64
         uses: docker/setup-qemu-action@v3
 
-      - name: Cache Nix store
-        uses: DeterminateSystems/magic-nix-cache-action@v8
-
-      - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v12
+      - uses: nixbuild/nix-quick-install-action@v30
         with:
-          extra-conf: |
+          nix_conf: |
+            substituters = https://cache.nixos.org/ https://nix-community.cachix.org
+            trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
+            keep-env-derivations = true
+            keep-outputs = true
             extra-platforms = aarch64-linux x86_64-linux
+
+      - uses: nix-community/cache-nix-action@v6
+        with:
+          primary-key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          paths: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
 
       - name: Build package
         run: nix build --accept-flake-config .#packages.${{ matrix.system }}.${{ matrix.package }}
