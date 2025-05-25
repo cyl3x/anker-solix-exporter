@@ -43,7 +43,7 @@ jobs:
 
       - uses: nix-community/cache-nix-action@v6
         with:
-          primary-key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          primary-key: ${{ runner.os }}-cargo-check-${{ hashFiles('**/Cargo.lock') }}
           paths: |
             ~/.cargo/bin/
             ~/.cargo/registry/index/
@@ -85,7 +85,7 @@ jobs:
 
       - uses: nix-community/cache-nix-action@v6
         with:
-          primary-key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          primary-key: ${{ runner.os }}-cargo-${{ matrix.system }}-${{ hashFiles('**/Cargo.lock') }}
           paths: |
             ~/.cargo/bin/
             ~/.cargo/registry/index/
