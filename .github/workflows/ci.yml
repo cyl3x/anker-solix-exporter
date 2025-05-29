@@ -37,8 +37,6 @@ jobs:
           nix_conf: |
             substituters = https://cache.nixos.org/ https://nix-community.cachix.org
             trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
-            keep-env-derivations = true
-            keep-outputs = true
             extra-platforms = aarch64-linux x86_64-linux
 
       - uses: nix-community/cache-nix-action@v6
@@ -49,7 +47,7 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
-            target/
+          gc-max-store-size: 1G
 
       - name: Check flake
         run: nix flake check --accept-flake-config
@@ -79,8 +77,6 @@ jobs:
           nix_conf: |
             substituters = https://cache.nixos.org/ https://nix-community.cachix.org
             trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY= nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs=
-            keep-env-derivations = true
-            keep-outputs = true
             extra-platforms = aarch64-linux x86_64-linux
 
       - uses: nix-community/cache-nix-action@v6
@@ -91,7 +87,7 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
-            target/
+          gc-max-store-size: 1G
 
       - name: Build package
         run: nix build --accept-flake-config .#packages.${{ matrix.system }}.${{ matrix.package }}
