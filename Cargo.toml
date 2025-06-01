@@ -33,4 +33,4 @@ ureq = { version = "3.0.11", features = ["json"] }
 serde_with = "3.12.0"
 thiserror = "2.0.12"
 figment = { version = "0.10.19", features = ["env", "json", "serde_json"] }
-signal-hook = "0.3.17"
+signal-hook = "0.3.18"
