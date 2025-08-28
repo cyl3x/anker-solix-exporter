@@ -27,19 +27,19 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up QEMU binfmt for cross compiling
         uses: docker/setup-qemu-action@v3
 
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v17
+        uses: DeterminateSystems/nix-installer-action@v19
         with:
           extra-conf: |
             extra-platforms = aarch64-linux x86_64-linux
 
       - name: Cache Nix store
-        uses: DeterminateSystems/magic-nix-cache-action@v11
+        uses: DeterminateSystems/magic-nix-cache-action@v13
 
       - name: Check flake
         run: nix flake check --accept-flake-config
@@ -59,19 +59,19 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up QEMU binfmt for building aarch64
         uses: docker/setup-qemu-action@v3
 
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v17
+        uses: DeterminateSystems/nix-installer-action@v19
         with:
           extra-conf: |
             extra-platforms = aarch64-linux x86_64-linux
 
       - name: Cache Nix store
-        uses: DeterminateSystems/magic-nix-cache-action@v11
+        uses: DeterminateSystems/magic-nix-cache-action@v13
 
       - name: Build package
         run: nix build --accept-flake-config .#packages.${{ matrix.system }}.${{ matrix.package }}
