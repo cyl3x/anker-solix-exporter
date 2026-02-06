@@ -27,13 +27,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Set up QEMU binfmt for cross compiling
         uses: docker/setup-qemu-action@v3
 
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v19
+        uses: DeterminateSystems/nix-installer-action@v21
         with:
           extra-conf: |
             extra-platforms = aarch64-linux x86_64-linux
@@ -59,13 +59,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Set up QEMU binfmt for building aarch64
         uses: docker/setup-qemu-action@v3
 
       - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v19
+        uses: DeterminateSystems/nix-installer-action@v21
         with:
           extra-conf: |
             extra-platforms = aarch64-linux x86_64-linux
