@@ -24,13 +24,13 @@ prometheus-client = "0.24.0"
 md-5 = "0.10.6"
 p256 = { version = "0.13.2", features = ["ecdh"] }
 aes = "0.8.4"
-cipher = "0.4.4"
+cipher = "0.5.0"
 cbc = "0.1.2"
 hex = "0.4.3"
-log = "0.4.27"
+log = "0.4.29"
 tiny_http = "0.12.0"
-ureq = { version = "3.1.0", features = ["json"] }
-serde_with = "3.14.0"
-thiserror = "2.0.16"
+ureq = { version = "3.2.0", features = ["json"] }
+serde_with = "3.16.1"
+thiserror = "2.0.18"
 figment = { version = "0.10.19", features = ["env", "json", "serde_json"] }
-signal-hook = "0.3.18"
+signal-hook = "0.4.3"
