@@ -270,6 +270,6 @@ impl Metrics {
             .get_or_create(&solarbank_total_labels)
             .set(scene_data.solarbank_info.total_photovoltaic_power);
 
-        log::info!("Updated metrics for site {}", site_id);
+        log::info!("Updated metrics for site {site_id}");
     }
 }

@@ -42,7 +42,7 @@ fn default_timezone() -> String {
 }
 
 impl Config {
-    pub fn new() -> Result<Self, figment::Error> {
+    pub fn new() -> Result<Self, Box<figment::Error>> {
         let args: Vec<String> = env::args().collect();
 
         let json = args.get(2).map_or("{}", |v| v);
@@ -51,6 +51,7 @@ impl Config {
             .merge(Env::prefixed("ANKER_SOLIX_"))
             .join(Json::string(json))
             .extract()
+            .map_err(Box::new)
     }
 
     pub fn country(&self) -> &str {

@@ -79,7 +79,7 @@ impl SolixApi {
     where
         T: DeserializeOwned,
     {
-        let mut request = ureq::post(&format!("https://ankerpower-api-eu.anker.com{}", endpoint))
+        let mut request = ureq::post(&format!("https://ankerpower-api-eu.anker.com{endpoint}"))
             .header("Country", &self.country)
             .header("Timezone", &self.timezone)
             .header("Model-Type", "DESKTOP")

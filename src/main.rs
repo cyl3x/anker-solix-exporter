@@ -187,7 +187,7 @@ fn main() {
         };
 
         if let Err(err) = result {
-            log::error!("Failed to responde: {}", err);
+            log::error!("Failed to responde: {err}");
         }
     }
 }

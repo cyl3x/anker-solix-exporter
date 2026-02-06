@@ -43,9 +43,7 @@ impl Credentials {
                 }
                 Err(err) => {
                     log::warn!(
-                        "Failed to parse credentials from file ({:?}): {:?}",
-                        path,
-                        err
+                        "Failed to parse credentials from file ({path:?}): {err:?}"
                     );
                     None
                 }
@@ -62,9 +60,7 @@ impl Credentials {
             if !parent.exists() {
                 if let Err(err) = std::fs::create_dir_all(parent) {
                     log::warn!(
-                        "Failed to create directory for credentials file ({:?}): {:?}",
-                        parent,
-                        err
+                        "Failed to create directory for credentials file ({parent:?}): {err:?}"
                     );
                 }
             }
@@ -74,14 +70,12 @@ impl Credentials {
             Ok(creds) => {
                 if let Err(err) = std::fs::write(path, creds) {
                     log::warn!(
-                        "Failed to write credentials to file ({:?}): {:?}",
-                        path,
-                        err
+                        "Failed to write credentials to file ({path:?}): {err:?}"
                     );
                 }
             }
             Err(err) => {
-                log::warn!("Failed to serialize credentials: {:?}", err);
+                log::warn!("Failed to serialize credentials: {err:?}");
             }
         }
 
