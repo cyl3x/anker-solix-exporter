@@ -10,3 +10,14 @@ updates:
       all:
         patterns:
           - '*'
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: 'fix(deps): '
+    groups:
+      all:
+        patterns:
+          - '*'
