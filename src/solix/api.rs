@@ -1,7 +1,7 @@
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use base64::Engine;
-use cipher::{BlockEncryptMut, KeyIvInit};
+use aes::cipher::{BlockEncryptMut, KeyIvInit};
 use md5::Digest;
 use p256::elliptic_curve::rand_core::OsRng;
 use serde::de::DeserializeOwned;
@@ -64,7 +64,7 @@ impl SolixApi {
         let cipher =
             cbc::Encryptor::<aes::Aes256>::new(self.shared_secret.raw_secret_bytes(), iv.into());
         cipher
-            .encrypt_padded_b2b_mut::<cipher::block_padding::Pkcs7>(password, &mut ciphertext)
+            .encrypt_padded_b2b_mut::<aes::cipher::block_padding::Pkcs7>(password, &mut ciphertext)
             .expect("Encryption failed");
 
         base64::engine::general_purpose::STANDARD.encode(&ciphertext)
