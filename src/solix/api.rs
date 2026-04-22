@@ -3,7 +3,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use base64::Engine;
 use aes::cipher::{BlockEncryptMut, KeyIvInit};
 use md5::Digest;
-use p256::elliptic_curve::rand_core::OsRng;
+use p256::elliptic_curve::rand_core::{CryptoRng, OsRng, RngCore};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 
@@ -39,7 +39,15 @@ pub struct SolixApi {
 
 impl SolixApi {
     pub fn new(country: impl Into<String>, timezone: impl Into<String>) -> Self {
-        let ecdh_secret = p256::ecdh::EphemeralSecret::random(&mut OsRng);
+        Self::new_with_rng(country, timezone, &mut OsRng)
+    }
+
+    fn new_with_rng<R: CryptoRng + RngCore>(
+        country: impl Into<String>,
+        timezone: impl Into<String>,
+        rng: &mut R,
+    ) -> Self {
+        let ecdh_secret = p256::ecdh::EphemeralSecret::random(rng);
 
         let server_pub_key_bytes =
             hex::decode(SERVER_PUBLIC_KEY).expect("Failed to decode public key");
@@ -156,5 +164,63 @@ impl SolixApi {
             Ok(Response::NoData { msg, code, .. }) => Err(Error::Api(code, msg)),
             Err(err) => Err(err),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    struct FixedRng(u8);
+
+    impl RngCore for FixedRng {
+        fn next_u32(&mut self) -> u32 {
+            u32::from_ne_bytes([self.0; 4])
+        }
+        fn next_u64(&mut self) -> u64 {
+            u64::from_ne_bytes([self.0; 8])
+        }
+        fn fill_bytes(&mut self, dest: &mut [u8]) {
+            dest.fill(self.0);
+        }
+        fn try_fill_bytes(
+            &mut self,
+            dest: &mut [u8],
+        ) -> Result<(), p256::elliptic_curve::rand_core::Error> {
+            dest.fill(self.0);
+            Ok(())
+        }
+    }
+
+    impl CryptoRng for FixedRng {}
+
+    fn test_api() -> SolixApi {
+        SolixApi::new_with_rng("DE", "Europe/Berlin", &mut FixedRng(0x01))
+    }
+
+    #[test]
+    fn public_key_is_stable() {
+        let api = test_api();
+        assert_eq!(
+            api.public_key,
+            "046ff03b949241ce1dadd43519e6960e0a85b41a69a05c328103aa2bce1594ca163c4f753a55bf01dc53f6c0b0c7eee78b40c6ff7d25a96e2282b989cef71c144a"
+        );
+    }
+
+    #[test]
+    fn shared_secret_is_stable() {
+        let api = test_api();
+        let bytes = api.shared_secret.raw_secret_bytes();
+        assert_eq!(
+            hex::encode(bytes),
+            "5174d46b10fe3195fbce476fc72adbe0e787a738fa61c6a1c3ddd04b1b05e4e4"
+        );
+    }
+
+    #[test]
+    fn encrypt_password_is_stable() {
+        let api = test_api();
+        let encrypted = api.encrypt_password(b"hunter2-correct-horse-battery-staple");
+        assert_eq!(encrypted, "MUaEsGE15zyqvVSh9h9J99zH03hzJreSOUA74ivouUc+di96P8ZgerdqOCeR748e");
     }
 }
