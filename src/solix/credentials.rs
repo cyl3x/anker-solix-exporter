@@ -56,14 +56,10 @@ impl Credentials {
     }
 
     pub fn save(self, path: &Path) -> Self {
-        if let Some(parent) = path.parent() {
-            if !parent.exists() {
-                if let Err(err) = std::fs::create_dir_all(parent) {
-                    log::warn!(
-                        "Failed to create directory for credentials file ({parent:?}): {err:?}"
-                    );
-                }
-            }
+        if let Some(parent) = path.parent() && !parent.exists() && let Err(err) = std::fs::create_dir_all(parent) {
+            log::warn!(
+                "Failed to create directory for credentials file ({parent:?}): {err:?}"
+            );
         }
 
         match serde_json::to_string(&self) {
