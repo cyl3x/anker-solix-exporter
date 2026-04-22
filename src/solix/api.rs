@@ -1,7 +1,8 @@
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use base64::Engine;
-use aes::cipher::{BlockEncryptMut, KeyIvInit};
+use aes::cipher::KeyIvInit;
+use cipher::BlockModeEncrypt;
 use md5::Digest;
 use p256::elliptic_curve::rand_core::{CryptoRng, OsRng, RngCore};
 use serde::de::DeserializeOwned;
@@ -66,13 +67,14 @@ impl SolixApi {
     }
 
     fn encrypt_password(&self, password: &[u8]) -> String {
-        let iv = &self.shared_secret.raw_secret_bytes()[0..16];
+        let raw = self.shared_secret.raw_secret_bytes();
+        let key: &[u8; 32] = raw[..].try_into().expect("shared secret is 32 bytes");
+        let iv: &[u8; 16] = raw[0..16].try_into().expect("IV is 16 bytes");
 
         let mut ciphertext = vec![0u8; password.len() + 16 - password.len() % 16];
-        let cipher =
-            cbc::Encryptor::<aes::Aes256>::new(self.shared_secret.raw_secret_bytes(), iv.into());
+        let cipher = cbc::Encryptor::<aes::Aes256>::new(key.into(), iv.into());
         cipher
-            .encrypt_padded_b2b_mut::<aes::cipher::block_padding::Pkcs7>(password, &mut ciphertext)
+            .encrypt_padded_b2b::<aes::cipher::block_padding::Pkcs7>(password, &mut ciphertext)
             .expect("Encryption failed");
 
         base64::engine::general_purpose::STANDARD.encode(&ciphertext)

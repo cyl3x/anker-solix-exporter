@@ -1,6 +1,6 @@
 [package]
 name = "anker-solix-exporter"
-version = "1.1.1"
+version = "1.2.0"
 edition = "2024"
 license-file = "LICENSE"
 authors = ["cyl3x <cyl3x@posteo.de>"]
@@ -19,18 +19,18 @@ strip = "debuginfo"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 base64 = "0.22.1"
-env_logger = "0.11.8"
-prometheus-client = "0.24.0"
-md-5 = "0.10.6"
+env_logger = "0.11.10"
+prometheus-client = "0.24.1"
+md-5 = "0.11.0"
 p256 = { version = "0.13.2", features = ["ecdh"] }
-aes = "0.8.4"
-cipher = { version = "0.5.0", features = ["block-padding"] }
-cbc = "0.1.2"
+aes = "0.9.0"
+cipher = { version = "0.5.1", features = ["block-padding"] }
+cbc = "0.2.0"
 hex = "0.4.3"
 log = "0.4.29"
 tiny_http = "0.12.0"
-ureq = { version = "3.2.0", features = ["json"] }
-serde_with = "3.16.1"
+ureq = { version = "3.3.0", features = ["json"] }
+serde_with = "3.18.0"
 thiserror = "2.0.18"
 figment = { version = "0.10.19", features = ["env", "json", "serde_json"] }
-signal-hook = "0.4.3"
+signal-hook = "0.4.4"
